@@ -2,6 +2,7 @@ import os
 import argparse
 import torch 
 
+from modules import MSTN
 os.makedirs('images', exist_ok = True)
 
 parser = argparse.ArgumentParser()
@@ -21,7 +22,7 @@ parser.add_argument('--save', type=str, default="trained/model", help='dir of th
 parser.add_argument('--save_step', type=int, default=0, help='dir of the trained_model')
 parser.add_argument('--load', type=str, default=None, help='dir of the trained_model')
 parser.add_argument('--set_device', type=str, default="cpu", help='set cuda')
-parser.add_argument('--dataset', type=str, default="chiffres", help='choosing dataset')
+parser.add_argument('--dataset', type=str, default="office_31", help='choosing dataset')
 parser.add_argument('--input_size', type=int, default=28*28*3, help='choosing dataset')
 
 args = parser.parse_args()
@@ -32,4 +33,12 @@ if args.set_device == "cuda" and torch.cuda.is_available():
 else:
 	args.device = torch.device('cpu')
 
+mstn = MSTN(args).to(device = args.device)
+optim = torch.optim.Adam(mstn.parameters(), lr = args.lr, betas= (args.b1, args.b2), weight_decay = 0.005)
 
+        s_train, s_test = loader.amazon_loader(args)
+	t_train, t_test = loader.webcam_loader(args)
+	trainset = loader.TransferLoader(s_train,t_train)
+	teststet = loader.TransferLoader(s_test,t_test)
+
+        torch.save(mstn.state_dict(), args.save)

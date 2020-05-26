@@ -24,3 +24,13 @@ class MSTN(nn.Module):
 
         self.n_features = args.n_features
         self.n_class = args.n_class
+
+        self.s_center = torch.zeros((args.n_class, args.n_features), requires_grad = False, device=args.device)
+        self.t_center = torch.zeros((args.n_class, args.n_features), requires_grad = False, device=args.device)
+
+        def forward(self, x):
+            features = self.gen(x)
+            C = self.clf(features)
+            D = self.dis(features)
+            return C, features, D
+
