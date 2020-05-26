@@ -1,4 +1,5 @@
 ## Implementation of Moving Semantic Transfer Network
+[explanation](https://sally20921.github.io/doc/DA/MSTN.pdf)
 
 ### Ultimate goal is to  develop a deep NN  that is able to predict labels for the  samples from taraget domain 
 
