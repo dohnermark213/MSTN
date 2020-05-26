@@ -1,6 +1,6 @@
 ## Implementation of Moving Semantic Transfer Network
 
-###Ultimate goal is to  develop a deep NN  that is able to predict labels for the  samples from taraget domain 
+### Ultimate goal is to  develop a deep NN  that is able to predict labels for the  samples from taraget domain 
 
 ### Besides the 1) standard source classification loss, we also employ 2)domain adversarial loss(domain confusion loss)  3)semantic loss (pseudo-labeled semantic loss)
 ###
