@@ -2,7 +2,7 @@ import os
 import argparse
 import torch 
 
-from modules import MSTN
+from modules import MSTN, fit
 os.makedirs('images', exist_ok = True)
 
 parser = argparse.ArgumentParser()
@@ -34,6 +34,10 @@ else:
 	args.device = torch.device('cpu')
 
 mstn = MSTN(args).to(device = args.device)
+
+if args.load != None:
+    mstn.load_state_dic(torch.load(args.load))
+
 optim = torch.optim.Adam(mstn.parameters(), lr = args.lr, betas= (args.b1, args.b2), weight_decay = 0.005)
 
         s_train, s_test = loader.amazon_loader(args)
@@ -41,4 +45,6 @@ optim = torch.optim.Adam(mstn.parameters(), lr = args.lr, betas= (args.b1, args.
 	trainset = loader.TransferLoader(s_train,t_train)
 	teststet = loader.TransferLoader(s_test,t_test)
 
-        torch.save(mstn.state_dict(), args.save)
+fit(args, args.epoch, mstn, optim, trainset, testset)
+
+torch.save(mstn.state_dict(), args.save)
