@@ -3,7 +3,7 @@ import argparse
 import torch 
 
 from modules.MSTN import MSTN, fit
-
+from modules.generator import AlexGen 
 import loader  as loader
 
 os.makedirs('images', exist_ok = True)
@@ -36,7 +36,7 @@ if args.set_device == "cuda" and torch.cuda.is_available():
 else:
 	args.device = torch.device('cpu')
 
-mstn = MSTN(args).to(device = args.device)
+mstn = MSTN(args,gen=AlexGen(args)).to(device = args.device)
 
 if args.load != None:
     mstn.load_state_dic(torch.load(args.load))
@@ -46,7 +46,7 @@ optim = torch.optim.Adam(mstn.parameters(), lr = args.lr, betas= (args.b1, args.
 s_train, s_test = loader.amazon_loader(args)
 t_train, t_test = loader.webcam_loader(args)
 trainset = loader.TransferLoader(s_train,t_train)
-teststet = loader.TransferLoader(s_test,t_test)
+testset = loader.TransferLoader(s_test,t_test)
 
 fit(args, args.epoch, mstn, optim, trainset, testset)
 

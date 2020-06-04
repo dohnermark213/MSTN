@@ -30,6 +30,20 @@ def amazon_loader(args):
 	test_loader = DataLoader(test, batch_size= args.batch_size, shuffle=True)
 	return train_loader, test_loader
 
+def webcam_loader(args): 
+    webcam_data = datasets.ImageFolder(
+                    office_31['webcam'],
+                    transform=office_transform
+                )
+    train_size = int(0.8*len(webcam_data))
+    test_size = len(webcam_data) - train_size 
+    train, test = torch.utils.data.random_split(webcam_data, [train_size, test_size])
+
+    train_loader =  DataLoader(train, batch_size=args.batch_size, shuffle=True)
+    test_loader = DataLoader(test, batch_size=args.batch_size, shuffle=True)
+    return  train_loader, test_loader
+
+
 class TransferLoader:
     def __init__(self, source, target):
         self.source = source

@@ -12,11 +12,14 @@ from torch import optim
 
 #from modules import  Generator, Discriminator, Classifier
 
-from .generator import Generator
+from .generator import Generator, fb
 from .discriminator import Discriminator
 from .classifier import Classifier
 
 import numpy as np
+
+from  tqdm import tqdm
+
 
 class MSTN(nn.Module):
     def __init__(self, args, gen  = None, dis = None, clf = None):
@@ -25,10 +28,16 @@ class MSTN(nn.Module):
         self.gen =gen
         self.dis = dis
         self.clf = clf  
+        
+        if self.gen == None:
+            self.gen = Generator(args)
+        if self.dis == None:
+            self.dis == Discriminator(args)
+        if self.clf == None:
+            self.clf = Classifier(args)
+        
+        self.fb = fb()
 
-        self.gen = Generator(args)
-        self.dis = Discriminator(args)
-        self.clf = Classifier(args)
 
 
         self.n_features = args.n_features
@@ -36,6 +45,7 @@ class MSTN(nn.Module):
 
         self.s_center = torch.zeros((args.n_class, args.n_features), requires_grad = False, device=args.device)
         self.t_center = torch.zeros((args.n_class, args.n_features), requires_grad = False, device=args.device)
+        self.disc = args.center_interita
 
     def forward(self, x):
          features = self.gen(x)
@@ -50,6 +60,7 @@ def update_centers(model, s_gen, t_gen, s_true, t_clf, args):
 
         s_center = torch.zeros(model.n_class, model.n_features, device=args.device)
         t_center = torch.zeros(model.n_class, model.n_features, device=args.device)
+    
 
         s_zeros = torch.zeros(source.size()[1:], device = args.device)
         t_zeros = torch.zeros(target.size()[1:], device = args.device)
@@ -124,7 +135,7 @@ def  run_epoch(model, opt, dataset, train, args):
         model.eval()
 
     for sx, sy, tx, ty  in tqdm(dataset):
-        loss+=eval_batch(model, sx.to(device), tx.to(device), sy, ty.to(device), opt, train, args)
+        loss+=eval_batch(model, sx.to(device), tx.to(device), sy, ty.to(device), opt, train, args)/len(dataset)
 
     return  loss  
 
