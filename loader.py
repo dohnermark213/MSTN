@@ -60,4 +60,42 @@ def make_dataset(root, label):
         images.append(item)
     return images
 
+class ImageLoader(Dataset):
+    def __init__(self, root,  label, transform=None, loader=dafault_loader):
+        imgs = make_dataset(root, label)
+        self.root = root
+        self.label = label
+        self.imgs = imgs
+        self.transform = transform
+        self.loader = loader
+
+    def __getitem__(self, index):
+        path, target = self.imgs[index]
+        img =  self.loader(path)
+
+        if self.transform is not None:
+            img = self.transform(img)
+        
+        return  img, target 
+
+    def __len__(self):
+        return  len(self.imgs)
+
+    def split_data(data):
+        train_loader=DataLoader(data,  batch_size = args.batch_size, shuffle=True)
+        test_loader=DataLoader(data, batch_size = args.batch_size,  shuffle=True)
+        return train_loader, test_loader 
+
+    def office_loader(args, subset):
+        data = ImageLoader('dataset/office/'+subset+'/','dataset/office/'+subset+'_label.txt')
+        return split_data(data)
+
+
+    def clef_loader(args, subsetm):
+        data = ImageLoader('dataset/imageCLEF/'+subset+'/','dataset/imageCLEF/'+subset+'List.txt')
+        return split_data(data)
+
+    def  clef_c_loader(args):
+        return office_loader(args, 'c')
+
 
