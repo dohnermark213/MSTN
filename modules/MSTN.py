@@ -10,13 +10,22 @@ import torch.nn as nn
 from torch import Tensor
 from torch import optim
 
-from modules import  Generator, Discriminator, Classifier
+#from modules import  Generator, Discriminator, Classifier
+
+from .generator import Generator
+from .discriminator import Discriminator
+from .classifier import Classifier
 
 import numpy as np
 
 class MSTN(nn.Module):
-    def __init__(self, args):
-        
+    def __init__(self, args, gen  = None, dis = None, clf = None):
+        super(MSTN,self).__init__()
+
+        self.gen =gen
+        self.dis = dis
+        self.clf = clf  
+
         self.gen = Generator(args)
         self.dis = Discriminator(args)
         self.clf = Classifier(args)
@@ -32,9 +41,10 @@ class MSTN(nn.Module):
          features = self.gen(x)
          C = self.clf(features)
          D = self.dis(features)
-        return C, features, D
+         return C, features, D
 
-    def update_centers(model, s_gen, t_gen, s_true, t_clf, args):
+
+def update_centers(model, s_gen, t_gen, s_true, t_clf, args):
         source = torch.argmax(s_true, 1).reshape(t_clf.size(0),1).detach()
         target = torch.argmax(t_clf, 1).reshape(t_clf.size(0), 1).detach()
 
@@ -52,9 +62,9 @@ class MSTN(nn.Module):
 
             return s_center,  t_center
 
-    adversarial_loss = torch.nn.BCELoss()
-    classification_loss = torch.nn.CrossEntropyLoss()
-    center_loss = torch.nn.MSELoss(reduction='sum')
+adversarial_loss = torch.nn.BCELoss()
+classification_loss = torch.nn.CrossEntropyLoss()
+center_loss = torch.nn.MSELoss(reduction='sum')
 
 def adaptation_factor(qq):
     return 2/(1+np.exp(-10*qq))-1
@@ -79,11 +89,11 @@ def eval_batch(model, sx, tx, s_true, t_true, opt, train, args):
 
     #generator  loss
     source_tag = torch.ones((sx.size(0), 1), device=args.device)
-    target_tag =  torch.zeros(tx.size(0), 1), device=args.device)
+    target_tag =  torch.zeros((tx.size(0), 1), device=args.device)
     s_true_hot = one_hot(s_true, model.n_class)
     s_G_loss = adversarial_loss(s_dis, source_tag)
     t_G_loss = adversarial_loss(t_dis, target_tag)
-    G_loss = (s_G_loss + t_G_loss_
+    G_loss = (s_G_loss + t_G_loss)
     
     #semantic  loss  
     s_c, t_c  = update_centers(model, s_gen, t_gen, s_true_hot, t_clf, args)
@@ -113,10 +123,11 @@ def  run_epoch(model, opt, dataset, train, args):
     else:
         model.eval()
 
-    for sx, sy, tx ty  in tqdm(dataset):
+    for sx, sy, tx, ty  in tqdm(dataset):
         loss+=eval_batch(model, sx.to(device), tx.to(device), sy, ty.to(device), opt, train, args)
 
     return  loss  
+
 
 def fit(args, epochs,  model, opt, trainset, validset):
     out = list()

@@ -2,7 +2,10 @@ import os
 import argparse
 import torch 
 
-from modules import MSTN, fit
+from modules.MSTN import MSTN, fit
+
+import loader  as loader
+
 os.makedirs('images', exist_ok = True)
 
 parser = argparse.ArgumentParser()
@@ -40,10 +43,10 @@ if args.load != None:
 
 optim = torch.optim.Adam(mstn.parameters(), lr = args.lr, betas= (args.b1, args.b2), weight_decay = 0.005)
 
-        s_train, s_test = loader.amazon_loader(args)
-	t_train, t_test = loader.webcam_loader(args)
-	trainset = loader.TransferLoader(s_train,t_train)
-	teststet = loader.TransferLoader(s_test,t_test)
+s_train, s_test = loader.amazon_loader(args)
+t_train, t_test = loader.webcam_loader(args)
+trainset = loader.TransferLoader(s_train,t_train)
+teststet = loader.TransferLoader(s_test,t_test)
 
 fit(args, args.epoch, mstn, optim, trainset, testset)
 

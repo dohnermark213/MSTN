@@ -7,6 +7,16 @@ from torch.utils.data  import DataLoader, Dataset
 tt = transforms.Lambda(lambda x: print(x.size()))
 normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],std=[0.5, 0.5, 0.5])
 
+office_31 = {'amazon': 'office_31/amazon/images/',
+             'dslr': 'office_31/dslr/images/',
+             'webcam': 'office_31/webcam/images/'}
+
+office_transform =  transforms.Compose([
+                        transforms.Resize(224),
+                        transforms.ToTensor(),
+                        transforms.Normalize([0.485, 0.456,  0.406], [0.229, 0.224, 0.225])
+                    ])
+
 def amazon_loader(args):
 	amazon_data = datasets.ImageFolder(
 			office_31['amazon'],
@@ -20,7 +30,7 @@ def amazon_loader(args):
 	test_loader = DataLoader(test, batch_size= args.batch_size, shuffle=True)
 	return train_loader, test_loader
 
-    class TransferLoader:
+class TransferLoader:
     def __init__(self, source, target):
         self.source = source
         self.target = target
@@ -61,7 +71,7 @@ def make_dataset(root, label):
     return images
 
 class ImageLoader(Dataset):
-    def __init__(self, root,  label, transform=None, loader=dafault_loader):
+    def __init__(self, root,  label, transform=None, loader=default_loader):
         imgs = make_dataset(root, label)
         self.root = root
         self.label = label
