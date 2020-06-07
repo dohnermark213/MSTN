@@ -19,6 +19,7 @@ class Generator(nn.Module):
         self.input_size=  args.input_size
 
         #self.alex.classifier = nn.Sequential(
+        #sequential do not overuse 
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
             nn.ReLU(inplace=True),
