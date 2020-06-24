@@ -19,3 +19,13 @@
 - feature extraction
 - align distributions (moving  average) 
 - centroid alignment  
+
+### Experiments
+#### SVHN -> MNIST
+- we follow the  protocol in (Tzeng  et al. 2017 "Adversarial discriminative domain adaptation")
+- we use  the training  set of SVHN and test set of MNIST for evaluation
+- During  testing, target images are mapped with the target encoder  to  the shared feature space and classified by the source classifier.  
+- digit images are also cast to  28x28x1 in all experiements
+- two convolution layers followed by max pool layers and two fully connected layers are placed behind
+- for discriminator, x->500->500->1
+- Batch normalization is inserted in convolutional layers
